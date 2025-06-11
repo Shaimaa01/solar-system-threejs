@@ -1,7 +1,7 @@
-import "./App.css";
+import SolarSystem from "./components/SolarSystem";
 
-function App() {
-  return <></>;
-}
+const App = () => {
+  return <SolarSystem />;
+};
 
 export default App;
