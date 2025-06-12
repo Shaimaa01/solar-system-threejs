@@ -17,11 +17,15 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   const animationIdRef = useRef(null);
   const sunRef = useRef(null);
   const starsRef = useRef(null);
-  const propsRef = useRef({ isPlaying, isDarkTheme, planetSpeeds });
+  const isPlayingRef = useRef(isPlaying);
+  const planetSpeedsRef = useRef(planetSpeeds);
+  const isDarkThemeRef = useRef(isDarkTheme);
 
-  // Update props ref whenever props change
+  // Update refs whenever props change
   useEffect(() => {
-    propsRef.current = { isPlaying, isDarkTheme, planetSpeeds };
+    isPlayingRef.current = isPlaying;
+    planetSpeedsRef.current = planetSpeeds;
+    isDarkThemeRef.current = isDarkTheme;
   }, [isPlaying, isDarkTheme, planetSpeeds]);
 
   useEffect(() => {
@@ -64,9 +68,9 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
-    scene.background = new THREE.Color(propsRef.current.isDarkTheme ? 0x000011 : 0x2d2d44);
+    scene.background = new THREE.Color(isDarkTheme ? 0x000011 : 0x2d2d44);
 
-    const stars = Stars(scene, propsRef.current.isDarkTheme);
+    const stars = Stars(scene, isDarkTheme);
     starsRef.current = stars;
 
     const sun = Sun(scene);
@@ -91,10 +95,8 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
 
       controls.update();
 
-      const currentProps = propsRef.current;
-
       // Always render, but only animate if playing
-      if (currentProps.isPlaying && deltaTime < 0.1) {
+      if (isPlayingRef.current && deltaTime < 0.1) {
         if (sunRef.current) {
           sunRef.current.rotation.y += 0.003;
         }
@@ -105,7 +107,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
 
         planets.forEach((planet) => {
           const planetInfo = planet.userData;
-          const speed = currentProps.planetSpeeds[planetInfo.name] || planetInfo.speed;
+          const speed = planetSpeedsRef.current[planetInfo.name] || planetInfo.speed;
 
           planetInfo.angle += speed * deltaTime * 4;
           planet.position.x = Math.cos(planetInfo.angle) * planetInfo.distance;
@@ -167,6 +169,14 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
       renderer.dispose();
     };
   }, []); // Empty dependency array - scene only creates once
+
+  // Handle theme changes
+  useEffect(() => {
+    if (sceneRef.current && starsRef.current) {
+      sceneRef.current.background = new THREE.Color(isDarkTheme ? 0x000011 : 0x2d2d44);
+      starsRef.current.material.color.setHex(isDarkTheme ? 0xffffff : 0xcccccc);
+    }
+  }, [isDarkTheme]);
 
   return <div ref={mountRef} className="absolute inset-0" />;
 };
