@@ -1,23 +1,22 @@
-
-import {planetData} from "./PlanetData";
+import { planetData } from "./PlanetData";
 import { useState } from "react";
 import Scene from "./Scene";
 import Controls from "./Controls";
 import SpeedPanel from "./SpeedPanel";
 
-const SolarSystem = ({ 
-  isPlaying, 
-  setIsPlaying, 
-  isDarkTheme, 
-  setIsDarkTheme, 
-  showControls, 
-  setShowControls 
+const SolarSystem = ({
+  isPlaying,
+  setIsPlaying,
+  isDarkTheme,
+  setIsDarkTheme,
+  showControls,
+  setShowControls,
 }) => {
   const [planetSpeeds, setPlanetSpeeds] = useState(
     planetData.reduce((acc, planet) => {
       acc[planet.name] = planet.speed;
       return acc;
-    }, {})
+    }, {}),
   );
 
   const handleSpeedChange = (planetName, newSpeed) => {
@@ -32,7 +31,7 @@ const SolarSystem = ({
       planetData.reduce((acc, planet) => {
         acc[planet.name] = planet.speed;
         return acc;
-      }, {})
+      }, {}),
     );
   };
 
@@ -67,12 +66,6 @@ const SolarSystem = ({
 
       <div className="absolute bottom-4 left-4 text-white/70 text-sm z-10">
         <p>🖱️ Drag to rotate • 🔄 Scroll to zoom • ⚙️ Settings for controls</p>
-        <p className="text-xs opacity-50">Optimized for older PCs</p>
-      </div>
-
-      <div className="absolute bottom-4 right-4 text-white/70 text-sm text-right z-10">
-        <p className="font-semibold">3D Solar System</p>
-        <p>🌍 Earth's Moon • 🪐 Saturn's Rings</p>
       </div>
     </div>
   );

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Play, Pause, Settings, Sun, Moon } from "lucide-react";
 import SolarSystem from "./components/SolarSystem";
 
 const App = () => {
@@ -8,7 +7,6 @@ const App = () => {
   const [showControls, setShowControls] = useState(false);
 
   return (
-    <div className="w-full h-screen overflow-hidden">
       <SolarSystem
         isPlaying={isPlaying}
         setIsPlaying={setIsPlaying}
@@ -17,7 +15,7 @@ const App = () => {
         showControls={showControls}
         setShowControls={setShowControls}
       />
-    </div>
+
   );
 };
 

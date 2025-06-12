@@ -1,8 +1,8 @@
 import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { useEffect, useRef } from "react";
 import Sun from "./Sun";
 import Stars from "./Stars";
-import CameraControls from "./CameraController";
 import Planet from "./Planet";
 import { planetData } from "./PlanetData";
 
@@ -12,8 +12,6 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   const rendererRef = useRef(null);
   const cameraRef = useRef(null);
   const planetsRef = useRef([]);
-  const controlsRef = useRef(null);
-  const animationIdRef = useRef(null);
   const sunRef = useRef(null);
   const starsRef = useRef(null);
   const isPlayingRef = useRef(isPlaying);
@@ -28,7 +26,8 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   }, [isPlaying, isDarkTheme, planetSpeeds]);
 
   useEffect(() => {
-    if (!mountRef.current) return;
+    const currentMount = mountRef.current;
+    if (!currentMount) return;
 
     const scene = new THREE.Scene();
     sceneRef.current = scene;
@@ -52,7 +51,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     rendererRef.current = renderer;
-    mountRef.current.appendChild(renderer.domElement);
+    currentMount.appendChild(renderer.domElement);
 
     // Improved lighting for better planet colors
     const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
@@ -75,6 +74,11 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     const sun = Sun(scene);
     sunRef.current = sun;
 
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.minDistance = 30;
+    controls.maxDistance = 250;
+
     // Create planets
     const planets = [];
     planetData.forEach((planetInfo) => {
@@ -82,58 +86,6 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
       planets.push(planet);
     });
     planetsRef.current = planets;
-
-    // Setup camera controls
-    const controls = CameraControls(camera, renderer);
-    controlsRef.current = controls;
-
-    // let lastTime = 0;
-    // const animate = (currentTime) => {
-    //   const deltaTime = (currentTime - lastTime) * 0.001;
-    //   lastTime = currentTime;
-
-    //   controls.update();
-
-    //   // Always render, but only animate if playing
-    //   if (isPlayingRef.current && deltaTime < 0.1) {
-    //     if (sunRef.current) {
-    //       sunRef.current.rotation.y += 0.003;
-    //     }
-
-    //     if (starsRef.current) {
-    //       starsRef.current.rotation.y += 0.0001;
-    //     }
-
-    //     planetsRef.current.forEach((planet) => {
-    //       const planetInfo = planet.userData;
-    //       const speed =
-    //         planetSpeedsRef.current[planetInfo.name] || planetInfo.speed;
-
-    //       planetInfo.angle += speed * deltaTime * 4;
-    //       planet.position.x = Math.cos(planetInfo.angle) * planetInfo.distance;
-    //       planet.position.z = Math.sin(planetInfo.angle) * planetInfo.distance;
-
-    //       planet.rotation.y += planetInfo.rotationSpeed;
-
-    //       // Earth's moon
-    //       if (planetInfo.name === "Earth" && planet.children.length > 0) {
-    //         const moon = planet.children[0];
-    //         moon.position.x = Math.cos(planetInfo.angle * 8) * 2.0;
-    //         moon.position.z = Math.sin(planetInfo.angle * 8) * 2.0;
-    //       }
-    //     });
-    //   }
-
-    //   // Always render the scene
-    //   renderer.render(scene, camera);
-    //   animationIdRef.current = requestAnimationFrame(animate);
-    // };
-
-    // animate();
-
-    // Place this entire block inside your main `useEffect` hook in Scene.js
-
-    // --- Animation Loop ---
 
     let animationId = null;
     let lastTime = 0;
@@ -151,9 +103,13 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
       controls.update();
 
       if (isPlayingRef.current) {
-        sun.rotation.y += 0.002 * safeDeltaTime * 60;
+        if (sunRef.current) {
+          sunRef.current.rotation.y += 0.003;
+        }
 
-        starsRef.current.rotation.y += 0.0005 * safeDeltaTime * 60;
+        if (starsRef.current) {
+          starsRef.current.rotation.y += 0.0001;
+        }
 
         planets.forEach((planet) => {
           const planetInfo = planet.userData;
@@ -195,42 +151,17 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     window.addEventListener("resize", handleResize);
 
     return () => {
-      if (animationIdRef.current) {
-        cancelAnimationFrame(animationIdRef.current);
-      }
+      cancelAnimationFrame(animationId);
+      currentMount.removeChild(renderer.domElement);
       window.removeEventListener("resize", handleResize);
-
-      if (controlsRef.current) {
-        controlsRef.current.dispose();
-      }
-
-      // Clean up resources
-      scene.traverse((object) => {
-        if (object.geometry) object.geometry.dispose();
-        if (object.material) {
-          if (Array.isArray(object.material)) {
-            object.material.forEach((material) => material.dispose());
-          } else {
-            object.material.dispose();
-          }
-        }
+      controls.dispose();
+      scene.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) o.material.dispose();
       });
 
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement);
-      }
       renderer.dispose();
     };
-  }, []); // Empty dependency array - scene only creates once
-
-  // Handle theme changes
-  useEffect(() => {
-    if (sceneRef.current && starsRef.current) {
-      sceneRef.current.background = new THREE.Color(
-        isDarkTheme ? 0x000011 : 0x2d2d44,
-      );
-      starsRef.current.material.color.setHex(isDarkTheme ? 0xffffff : 0xcccccc);
-    }
   }, [isDarkTheme]);
 
   return <div ref={mountRef} className="absolute inset-0" />;
