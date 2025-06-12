@@ -20,7 +20,9 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   const propsRef = useRef({ isPlaying, isDarkTheme, planetSpeeds });
 
   // Update props ref whenever props change
-  propsRef.current = { isPlaying, isDarkTheme, planetSpeeds };
+  useEffect(() => {
+    propsRef.current = { isPlaying, isDarkTheme, planetSpeeds };
+  }, [isPlaying, isDarkTheme, planetSpeeds]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -91,6 +93,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
 
       const currentProps = propsRef.current;
 
+      // Always render, but only animate if playing
       if (currentProps.isPlaying && deltaTime < 0.1) {
         if (sunRef.current) {
           sunRef.current.rotation.y += 0.003;
@@ -119,6 +122,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
         });
       }
 
+      // Always render the scene
       renderer.render(scene, camera);
       animationIdRef.current = requestAnimationFrame(animate);
     };
