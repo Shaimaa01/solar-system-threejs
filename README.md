@@ -1,12 +1,33 @@
-# React + Vite
+# 3D Solar System Simulation
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is a 3D simulation of the solar system built with React and Three.js for a frontend developer assignment.
 
-Currently, two official plugins are available:
+## Author
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Name:** Shaimaa
 
-## Expanding the ESLint configuration
+## Features Implemented
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- A full 3D scene with the Sun and all 8 planets.
+- Smooth, frame-rate independent planetary orbits and rotations.
+- A real-time control panel to adjust the orbital speed of each individual planet.
+- A "Pause/Resume" button to control the animation.
+- A dynamic starfield background.
+- A "Dark/Light" UI theme toggle.
+- Interactive camera controls (zoom, pan, rotate) powered by `OrbitControls`.
+
+## How to Run the Project
+
+This project was built using a standard Vite/React setup.
+
+1.  Unzip the folder.
+2.  Open a terminal or command prompt in the project's root directory.
+3.  Install the necessary dependencies by running:
+    ```bash
+    npm install
+    ```
+4.  Start the local development server by running:
+    ```bash
+    npm run dev
+    ```
+5.  Open your web browser and navigate to the address provided in the terminal (usually `http://localhost:5173`).
