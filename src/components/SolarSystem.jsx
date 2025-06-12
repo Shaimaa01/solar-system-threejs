@@ -1,8 +1,8 @@
-import  { useState } from "react";
+import {planetData} from "./PlanetData";
+import { useState } from "react";
 import Scene from "./Scene";
 import Controls from "./Controls";
 import SpeedPanel from "./SpeedPanel";
-import { planetData } from "./planetData";
 
 const SolarSystem = () => {
   const [isPlaying, setIsPlaying] = useState(true);
@@ -60,21 +60,14 @@ const SolarSystem = () => {
         />
       )}
 
-      {/* Instructions */}
-      <div className="absolute bottom-4 left-4 text-white/70 text-sm">
-        <p>
-          🖱️ Move mouse to rotate • 🔄 Scroll to zoom • ⚙️ Settings for speed
-          controls
-        </p>
+      <div className="absolute bottom-4 left-4 text-white/70 text-sm z-10">
+        <p>🖱️ Drag to rotate • 🔄 Scroll to zoom • ⚙️ Settings for controls</p>
+        <p className="text-xs opacity-50">Optimized for older PCs</p>
       </div>
 
-      {/* Info Panel */}
-      <div className="absolute bottom-4 right-4 text-white/70 text-sm text-right">
-        <p className="font-semibold">3D Solar System Simulation</p>
-        <p>🌍 Earth's Moon • 🪐 Saturn's Rings • ✨ Realistic Orbits</p>
-        <p className="text-xs mt-1">
-          Theme: {isDarkTheme ? "Deep Space" : "Nebula Space"}
-        </p>
+      <div className="absolute bottom-4 right-4 text-white/70 text-sm text-right z-10">
+        <p className="font-semibold">3D Solar System</p>
+        <p>🌍 Earth's Moon • 🪐 Saturn's Rings</p>
       </div>
     </div>
   );

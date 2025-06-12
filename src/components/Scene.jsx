@@ -1,10 +1,10 @@
-import  { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { planetData } from "./PlanetData";
-import CameraController from "./CameraController";
-import Stars from "./Stars";
+import { useEffect, useRef } from "react";
 import Sun from "./Sun";
+import Stars from "./Stars";
+import CameraControls from "./CameraController";
 import Planet from "./Planet";
+import { planetData } from "./PlanetData";
 
 const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   const mountRef = useRef(null);
@@ -12,7 +12,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   const rendererRef = useRef(null);
   const cameraRef = useRef(null);
   const planetsRef = useRef([]);
-  const clockRef = useRef(new THREE.Clock());
+  const controlsRef = useRef(null);
   const animationIdRef = useRef(null);
   const sunRef = useRef(null);
   const starsRef = useRef(null);
@@ -20,98 +20,90 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   useEffect(() => {
     if (!mountRef.current) return;
 
-    // Scene setup
     const scene = new THREE.Scene();
     sceneRef.current = scene;
 
-    // Camera setup
     const camera = new THREE.PerspectiveCamera(
-      60,
+      50, // Reduced FOV
       window.innerWidth / window.innerHeight,
       0.1,
-      2000
+      1000
     );
-    camera.position.set(0, 30, 100);
+    camera.position.set(0, 20, 80);
     camera.lookAt(0, 0, 0);
     cameraRef.current = camera;
 
-    // Renderer setup
     const renderer = new THREE.WebGLRenderer({
-      antialias: false,
-    //   powerPreference: "high-performance",
+      antialias: false, // Disabled for performance
       alpha: false,
+      powerPreference: "low-power", // Better for old PCs
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Limited pixel ratio
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
-    // Lighting setup
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.2);
+    // Simplified lighting
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
     scene.add(ambientLight);
 
     const sunLight = new THREE.PointLight(0xffffff, 1.5, 200);
     sunLight.position.set(0, 0, 0);
     scene.add(sunLight);
 
-    // Theme setup
-    scene.background = new THREE.Color(isDarkTheme ? 0x000008 : 0x1a1a2e);
+    scene.background = new THREE.Color(isDarkTheme ? 0x000005 : 0x1a1a2e);
 
-    // Create stars
-    const stars = new Stars(scene, isDarkTheme);
-    starsRef.current = stars.getStars();
+    const stars = Stars(scene, isDarkTheme);
+    starsRef.current = stars;
 
-    // Create sun
-    const sun = new Sun(scene);
-    sunRef.current = sun.getSun();
+    const sun = Sun(scene);
+    sunRef.current = sun;
 
     // Create planets
     const planets = [];
     planetData.forEach((planetInfo) => {
-      const planet = new Planet(scene, planetInfo);
-      planets.push(planet.getMesh());
+      const planet = Planet(scene, planetInfo);
+      planets.push(planet);
     });
     planetsRef.current = planets;
 
-    // Camera controller
-    const cameraController = new CameraController(camera);
+    // Setup camera controls
+    const controls = CameraControls(camera, renderer);
+    controlsRef.current = controls;
 
-    // Animation loop
-    const animate = () => {
-      cameraController.update();
+    let lastTime = 0;
+    const animate = (currentTime) => {
+      const deltaTime = (currentTime - lastTime) * 0.001; // Convert to seconds
+      lastTime = currentTime;
 
-      if (isPlaying) {
-        const delta = clockRef.current.getDelta();
+      controls.update();
 
-        // Sun rotation
+      if (isPlaying && deltaTime < 0.1) {
+        // Skip frame if too much time passed
         if (sunRef.current) {
-          sunRef.current.rotation.y += 0.005;
+          sunRef.current.rotation.y += 0.003;
         }
 
-        // Stars rotation
         if (starsRef.current) {
           starsRef.current.rotation.y += 0.0001;
         }
 
-        // Planet animation
         planets.forEach((planet) => {
           const planetInfo = planet.userData;
           const speed = planetSpeeds[planetInfo.name] || planetInfo.speed;
 
-          // Orbital motion
-          planetInfo.angle += speed * delta * 8;
+          planetInfo.angle += speed * deltaTime * 4; // Reduced multiplier
           planet.position.x = Math.cos(planetInfo.angle) * planetInfo.distance;
           planet.position.z = Math.sin(planetInfo.angle) * planetInfo.distance;
 
-          // Planet self-rotation
           planet.rotation.y += planetInfo.rotationSpeed;
 
-          // Special animations for moons and rings
+          // Earth's moon
           if (planetInfo.name === "Earth" && planet.children.length > 0) {
             const moon = planet.children[0];
-            moon.position.x = Math.cos(planetInfo.angle * 12) * 2.5;
-            moon.position.z = Math.sin(planetInfo.angle * 12) * 2.5;
+            moon.position.x = Math.cos(planetInfo.angle * 8) * 2.0;
+            moon.position.z = Math.sin(planetInfo.angle * 8) * 2.0;
           }
         });
       }
@@ -120,9 +112,8 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
       animationIdRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    animate(0);
 
-    // Window resize handler
     const handleResize = () => {
       if (camera && renderer) {
         camera.aspect = window.innerWidth / window.innerHeight;
@@ -133,14 +124,17 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
 
     window.addEventListener("resize", handleResize);
 
-    // Cleanup
     return () => {
       if (animationIdRef.current) {
         cancelAnimationFrame(animationIdRef.current);
       }
       window.removeEventListener("resize", handleResize);
-      cameraController.dispose();
 
+      if (controlsRef.current) {
+        controlsRef.current.dispose();
+      }
+
+      // Clean up resources
       scene.traverse((object) => {
         if (object.geometry) object.geometry.dispose();
         if (object.material) {

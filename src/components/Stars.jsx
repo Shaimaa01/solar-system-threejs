@@ -1,38 +1,26 @@
+import * as THREE from "three";
+const Stars = (scene, isDarkTheme) => {
+  const starsGeometry = new THREE.BufferGeometry();
+  const starsVertices = [];
 
-import * as THREE from 'three';
-
-class Stars {
-  constructor(scene, isDark) {
-    const starsGeometry = new THREE.BufferGeometry();
-    const starsMaterial = new THREE.PointsMaterial({
-      color: isDark ? 0xffffff : 0xcccccc,
-      size: isDark ? 1 : 0.5,
-      sizeAttenuation: false,
-      transparent: true,
-      opacity: isDark ? 0.8 : 0.4
-    });
-
-    const starsVertices = [];
-    for (let i = 0; i < 150; i++) {
-      const radius = 500 + Math.random() * 800;
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.random() * Math.PI;
-      
-      const x = radius * Math.sin(phi) * Math.cos(theta);
-      const y = radius * Math.sin(phi) * Math.sin(theta);
-      const z = radius * Math.cos(phi);
-      
-      starsVertices.push(x, y, z);
-    }
-
-    starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
-    this.stars = new THREE.Points(starsGeometry, starsMaterial);
-    scene.add(this.stars);
+  // Reduced star count for performance
+  for (let i = 0; i < 800; i++) {
+    const x = (Math.random() - 0.5) * 1000;
+    const y = (Math.random() - 0.5) * 1000;
+    const z = (Math.random() - 0.5) * 1000;
+    starsVertices.push(x, y, z);
   }
 
-  getStars() {
-    return this.stars;
-  }
-}
-
+  starsGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(starsVertices, 3)
+  );
+  const starsMaterial = new THREE.PointsMaterial({
+    color: isDarkTheme ? 0xffffff : 0x888888,
+    size: 1.5,
+  });
+  const stars = new THREE.Points(starsGeometry, starsMaterial);
+  scene.add(stars);
+  return stars;
+};
 export default Stars;
