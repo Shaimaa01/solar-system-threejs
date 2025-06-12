@@ -1,8 +1,5 @@
-import * as THREE from "three";
 
-//  CameraController.js - Using OrbitControls (simulated)
-const CameraController = (camera, renderer) => {
-  // Simple orbit controls implementation
+const CameraControls = (camera, renderer) => {
   let isMouseDown = false;
   let mouseX = 0;
   let mouseY = 0;
@@ -28,10 +25,10 @@ const CameraController = (camera, renderer) => {
     const deltaX = event.clientX - mouseX;
     const deltaY = event.clientY - mouseY;
 
-    targetX -= deltaX * 0.005; // Reduced sensitivity
+    targetX -= deltaX * 0.005;
     targetY += deltaY * 0.005;
 
-    targetY = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, targetY)); // Limited vertical rotation
+    targetY = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, targetY));
 
     mouseX = event.clientX;
     mouseY = event.clientY;
@@ -42,7 +39,7 @@ const CameraController = (camera, renderer) => {
   };
 
   const update = () => {
-    currentX += (targetX - currentX) * 0.05; // Smoother movement
+    currentX += (targetX - currentX) * 0.05;
     currentY += (targetY - currentY) * 0.05;
 
     camera.position.x = Math.cos(currentY) * Math.sin(currentX) * distance;
@@ -68,4 +65,4 @@ const CameraController = (camera, renderer) => {
   };
 };
 
-export default CameraController;
+export default CameraControls;

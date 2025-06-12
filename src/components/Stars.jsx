@@ -1,9 +1,10 @@
+
 import * as THREE from "three";
+
 const Stars = (scene, isDarkTheme) => {
   const starsGeometry = new THREE.BufferGeometry();
   const starsVertices = [];
 
-  // Reduced star count for performance
   for (let i = 0; i < 800; i++) {
     const x = (Math.random() - 0.5) * 1000;
     const y = (Math.random() - 0.5) * 1000;
@@ -23,4 +24,5 @@ const Stars = (scene, isDarkTheme) => {
   scene.add(stars);
   return stars;
 };
+
 export default Stars;

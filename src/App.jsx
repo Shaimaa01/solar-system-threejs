@@ -1,10 +1,7 @@
-// import SolarSystem from "./components/SolarSystem";
-import { useState, useEffect, useRef } from "react";
-import { Play, Pause, Settings, Moon, Sun, RotateCcw } from "lucide-react";
-import * as THREE from "three";
+import SolarSystem from "./components/SolarSystem";
 
 const App = () => {
-  // return <SolarSystem />;
+  return <SolarSystem />;
 
   // PlanetData.js
   const planetData = [

@@ -1,3 +1,4 @@
+
 import { Play, Pause, Settings, Moon, Sun } from "lucide-react";
 
 const Controls = ({

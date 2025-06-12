@@ -1,5 +1,6 @@
-import { planetData } from "./PlanetData";
+
 import { RotateCcw } from "lucide-react";
+import { planetData } from "./PlanetData";
 
 const SpeedPanel = ({ planetSpeeds, handleSpeedChange, resetSpeeds }) => {
   return (
