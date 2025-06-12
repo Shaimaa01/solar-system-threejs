@@ -1,18 +1,13 @@
-
 import {planetData} from "./PlanetData";
 import { useState } from "react";
 import Scene from "./Scene";
 import Controls from "./Controls";
 import SpeedPanel from "./SpeedPanel";
 
-const SolarSystem = ({ 
-  isPlaying, 
-  setIsPlaying, 
-  isDarkTheme, 
-  setIsDarkTheme, 
-  showControls, 
-  setShowControls 
-}) => {
+const SolarSystem = () => {
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
+  const [showControls, setShowControls] = useState(false);
   const [planetSpeeds, setPlanetSpeeds] = useState(
     planetData.reduce((acc, planet) => {
       acc[planet.name] = planet.speed;

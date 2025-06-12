@@ -16,17 +16,6 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   const animationIdRef = useRef(null);
   const sunRef = useRef(null);
   const starsRef = useRef(null);
-  const isPlayingRef = useRef(isPlaying);
-  const planetSpeedsRef = useRef(planetSpeeds);
-
-  // Update refs when props change
-  useEffect(() => {
-    isPlayingRef.current = isPlaying;
-  }, [isPlaying]);
-
-  useEffect(() => {
-    planetSpeedsRef.current = planetSpeeds;
-  }, [planetSpeeds]);
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -95,7 +84,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
 
       controls.update();
 
-      if (isPlayingRef.current && deltaTime < 0.1) {
+      if (isPlaying && deltaTime < 0.1) {
         // Skip frame if too much time passed
         if (sunRef.current) {
           sunRef.current.rotation.y += 0.003;
@@ -107,7 +96,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
 
         planets.forEach((planet) => {
           const planetInfo = planet.userData;
-          const speed = planetSpeedsRef.current[planetInfo.name] || planetInfo.speed;
+          const speed = planetSpeeds[planetInfo.name] || planetInfo.speed;
 
           planetInfo.angle += speed * deltaTime * 4; // Reduced multiplier
           planet.position.x = Math.cos(planetInfo.angle) * planetInfo.distance;
