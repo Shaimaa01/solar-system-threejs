@@ -1,4 +1,3 @@
-
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
 import Sun from "./Sun";
@@ -38,7 +37,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
       50,
       window.innerWidth / window.innerHeight,
       0.1,
-      1000
+      1000,
     );
     camera.position.set(0, 20, 80);
     camera.lookAt(0, 0, 0);
@@ -88,48 +87,102 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     const controls = CameraControls(camera, renderer);
     controlsRef.current = controls;
 
+    // let lastTime = 0;
+    // const animate = (currentTime) => {
+    //   const deltaTime = (currentTime - lastTime) * 0.001;
+    //   lastTime = currentTime;
+
+    //   controls.update();
+
+    //   // Always render, but only animate if playing
+    //   if (isPlayingRef.current && deltaTime < 0.1) {
+    //     if (sunRef.current) {
+    //       sunRef.current.rotation.y += 0.003;
+    //     }
+
+    //     if (starsRef.current) {
+    //       starsRef.current.rotation.y += 0.0001;
+    //     }
+
+    //     planetsRef.current.forEach((planet) => {
+    //       const planetInfo = planet.userData;
+    //       const speed =
+    //         planetSpeedsRef.current[planetInfo.name] || planetInfo.speed;
+
+    //       planetInfo.angle += speed * deltaTime * 4;
+    //       planet.position.x = Math.cos(planetInfo.angle) * planetInfo.distance;
+    //       planet.position.z = Math.sin(planetInfo.angle) * planetInfo.distance;
+
+    //       planet.rotation.y += planetInfo.rotationSpeed;
+
+    //       // Earth's moon
+    //       if (planetInfo.name === "Earth" && planet.children.length > 0) {
+    //         const moon = planet.children[0];
+    //         moon.position.x = Math.cos(planetInfo.angle * 8) * 2.0;
+    //         moon.position.z = Math.sin(planetInfo.angle * 8) * 2.0;
+    //       }
+    //     });
+    //   }
+
+    //   // Always render the scene
+    //   renderer.render(scene, camera);
+    //   animationIdRef.current = requestAnimationFrame(animate);
+    // };
+
+    // animate();
+
+    // Place this entire block inside your main `useEffect` hook in Scene.js
+
+    // --- Animation Loop ---
+
+    let animationId = null;
     let lastTime = 0;
+
     const animate = (currentTime) => {
-      const deltaTime = (currentTime - lastTime) * 0.001;
+      if (lastTime === 0) {
+        lastTime = currentTime;
+      }
+
+      const deltaTime = (currentTime - lastTime) / 1000;
       lastTime = currentTime;
+
+      const safeDeltaTime = Math.min(deltaTime, 0.1);
 
       controls.update();
 
-      // Always render, but only animate if playing
-      if (isPlayingRef.current && deltaTime < 0.1) {
-        if (sunRef.current) {
-          sunRef.current.rotation.y += 0.003;
-        }
+      if (isPlayingRef.current) {
+        sun.rotation.y += 0.002 * safeDeltaTime * 60;
 
-        if (starsRef.current) {
-          starsRef.current.rotation.y += 0.0001;
-        }
+        starsRef.current.rotation.y += 0.0005 * safeDeltaTime * 60;
 
         planets.forEach((planet) => {
           const planetInfo = planet.userData;
-          const speed = planetSpeedsRef.current[planetInfo.name] || planetInfo.speed;
 
-          planetInfo.angle += speed * deltaTime * 4;
+          const speed =
+            planetSpeedsRef.current[planetInfo.name] || planetInfo.speed;
+
+          planetInfo.angle += speed * safeDeltaTime * 5;
+
           planet.position.x = Math.cos(planetInfo.angle) * planetInfo.distance;
           planet.position.z = Math.sin(planetInfo.angle) * planetInfo.distance;
 
-          planet.rotation.y += planetInfo.rotationSpeed;
+          planet.rotation.y += planetInfo.rotationSpeed * safeDeltaTime * 60;
 
-          // Earth's moon
-          if (planetInfo.name === "Earth" && planet.children.length > 0) {
+          if (planetInfo.name === "Earth" && planet.children[0]) {
             const moon = planet.children[0];
-            moon.position.x = Math.cos(planetInfo.angle * 8) * 2.0;
-            moon.position.z = Math.sin(planetInfo.angle * 8) * 2.0;
+
+            moon.position.x = Math.cos(planetInfo.angle * 12) * 2.0;
+            moon.position.z = Math.sin(planetInfo.angle * 12) * 2.0;
           }
         });
       }
 
-      // Always render the scene
       renderer.render(scene, camera);
-      animationIdRef.current = requestAnimationFrame(animate);
+
+      animationId = requestAnimationFrame(animate);
     };
 
-    animate(0);
+    animationId = requestAnimationFrame(animate);
 
     const handleResize = () => {
       if (camera && renderer) {
@@ -173,7 +226,9 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   // Handle theme changes
   useEffect(() => {
     if (sceneRef.current && starsRef.current) {
-      sceneRef.current.background = new THREE.Color(isDarkTheme ? 0x000011 : 0x2d2d44);
+      sceneRef.current.background = new THREE.Color(
+        isDarkTheme ? 0x000011 : 0x2d2d44,
+      );
       starsRef.current.material.color.setHex(isDarkTheme ? 0xffffff : 0xcccccc);
     }
   }, [isDarkTheme]);
