@@ -167,7 +167,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
       }
       renderer.dispose();
     };
-  }, [isPlaying, isDarkTheme, planetSpeeds]);
+  }, [isDarkTheme]); // Only recreate scene when theme changes
 
   return <div ref={mountRef} className="absolute inset-0" />;
 };
