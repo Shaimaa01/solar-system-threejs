@@ -1,3 +1,4 @@
+
 import * as THREE from "three";
 import { useEffect, useRef } from "react";
 import Sun from "./Sun";
@@ -16,17 +17,10 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
   const animationIdRef = useRef(null);
   const sunRef = useRef(null);
   const starsRef = useRef(null);
-  const isPlayingRef = useRef(isPlaying);
-  const planetSpeedsRef = useRef(planetSpeeds);
+  const propsRef = useRef({ isPlaying, isDarkTheme, planetSpeeds });
 
-  // Update refs when props change
-  useEffect(() => {
-    isPlayingRef.current = isPlaying;
-  }, [isPlaying]);
-
-  useEffect(() => {
-    planetSpeedsRef.current = planetSpeeds;
-  }, [planetSpeeds]);
+  // Update props ref whenever props change
+  propsRef.current = { isPlaying, isDarkTheme, planetSpeeds };
 
   useEffect(() => {
     if (!mountRef.current) return;
@@ -35,7 +29,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(
-      50, // Reduced FOV
+      50,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
@@ -45,12 +39,12 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     cameraRef.current = camera;
 
     const renderer = new THREE.WebGLRenderer({
-      antialias: false, // Disabled for performance
+      antialias: false,
       alpha: false,
-      powerPreference: "low-power", // Better for old PCs
+      powerPreference: "low-power",
     });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Limited pixel ratio
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
@@ -68,9 +62,9 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     directionalLight.position.set(5, 5, 5);
     scene.add(directionalLight);
 
-    scene.background = new THREE.Color(isDarkTheme ? 0x000011 : 0x2d2d44);
+    scene.background = new THREE.Color(propsRef.current.isDarkTheme ? 0x000011 : 0x2d2d44);
 
-    const stars = Stars(scene, isDarkTheme);
+    const stars = Stars(scene, propsRef.current.isDarkTheme);
     starsRef.current = stars;
 
     const sun = Sun(scene);
@@ -90,13 +84,14 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
 
     let lastTime = 0;
     const animate = (currentTime) => {
-      const deltaTime = (currentTime - lastTime) * 0.001; // Convert to seconds
+      const deltaTime = (currentTime - lastTime) * 0.001;
       lastTime = currentTime;
 
       controls.update();
 
-      if (isPlayingRef.current && deltaTime < 0.1) {
-        // Skip frame if too much time passed
+      const currentProps = propsRef.current;
+
+      if (currentProps.isPlaying && deltaTime < 0.1) {
         if (sunRef.current) {
           sunRef.current.rotation.y += 0.003;
         }
@@ -107,9 +102,9 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
 
         planets.forEach((planet) => {
           const planetInfo = planet.userData;
-          const speed = planetSpeedsRef.current[planetInfo.name] || planetInfo.speed;
+          const speed = currentProps.planetSpeeds[planetInfo.name] || planetInfo.speed;
 
-          planetInfo.angle += speed * deltaTime * 4; // Reduced multiplier
+          planetInfo.angle += speed * deltaTime * 4;
           planet.position.x = Math.cos(planetInfo.angle) * planetInfo.distance;
           planet.position.z = Math.sin(planetInfo.angle) * planetInfo.distance;
 
@@ -167,7 +162,7 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
       }
       renderer.dispose();
     };
-  }, [isDarkTheme]); // Only recreate scene when theme changes
+  }, []); // Empty dependency array - scene only creates once
 
   return <div ref={mountRef} className="absolute inset-0" />;
 };
