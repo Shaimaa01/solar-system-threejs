@@ -44,15 +44,20 @@ const Scene = ({ isPlaying, isDarkTheme, planetSpeeds }) => {
     rendererRef.current = renderer;
     mountRef.current.appendChild(renderer.domElement);
 
-    // Simplified lighting
-    const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
+    // Improved lighting for better planet colors
+    const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.PointLight(0xffffff, 1.5, 200);
+    const sunLight = new THREE.PointLight(0xffffff, 2.0, 300);
     sunLight.position.set(0, 0, 0);
     scene.add(sunLight);
 
-    scene.background = new THREE.Color(isDarkTheme ? 0x000005 : 0x1a1a2e);
+    // Additional directional light for better illumination
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+
+    scene.background = new THREE.Color(isDarkTheme ? 0x000011 : 0x2d2d44);
 
     const stars = Stars(scene, isDarkTheme);
     starsRef.current = stars;

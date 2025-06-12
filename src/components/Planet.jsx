@@ -4,8 +4,9 @@ import * as THREE from "three";
 const Planet = (scene, planetInfo) => {
   // Use basic material for better compatibility
   const geometry = new THREE.SphereGeometry(planetInfo.size, 16, 16);
-  const material = new THREE.MeshLambertMaterial({
+  const material = new THREE.MeshPhongMaterial({
     color: planetInfo.color,
+    shininess: 30,
   });
 
   const mesh = new THREE.Mesh(geometry, material);

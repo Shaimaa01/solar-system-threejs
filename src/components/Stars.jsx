@@ -17,8 +17,8 @@ const Stars = (scene, isDarkTheme) => {
     new THREE.Float32BufferAttribute(starsVertices, 3)
   );
   const starsMaterial = new THREE.PointsMaterial({
-    color: isDarkTheme ? 0xffffff : 0x888888,
-    size: 1.5,
+    color: isDarkTheme ? 0xffffff : 0xcccccc,
+    size: 2.0,
   });
   const stars = new THREE.Points(starsGeometry, starsMaterial);
   scene.add(stars);
